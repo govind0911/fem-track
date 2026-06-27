@@ -8,10 +8,8 @@
     <script src="script.js" defer></script>
   </head>
   <body>
-    <!-- App Container -->
     <div class="app-container" id="app">
       
-      <!-- Top Header (Contextual Greeting & In-App Reminders) -->
       <header class="app-header">
         <div class="header-main">
           <div class="greeting-area">
@@ -26,7 +24,6 @@
           </div>
         </div>
         
-        <!-- Interactive Notification Banner -->
         <div class="notification-banner hidden" id="reminder-banner">
           <div class="banner-icon-wrapper">
             <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
@@ -45,12 +42,9 @@
         </div>
       </header>
 
-      <!-- Main Screens Wrapper -->
       <main class="app-main">
         
-        <!-- 1. HOME SCREEN -->
         <section class="app-screen active" id="screen-home">
-          <!-- Circular Dashboard Widget -->
           <div class="dashboard-card">
             <div class="cycle-circle-container">
               <svg class="cycle-svg" viewBox="0 0 200 200">
@@ -85,7 +79,6 @@
             </button>
           </div>
 
-          <!-- Predictions Card -->
           <div class="glass-card pred-details-card">
             <h3 class="card-title">
               <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
@@ -115,7 +108,6 @@
             </p>
           </div>
 
-          <!-- Supportive Quote -->
           <div class="quote-card">
             <span class="quote-icon">“</span>
             <p class="quote-text" id="motivational-quote">Be gentle with yourself. You are doing the best you can.</p>
@@ -123,7 +115,6 @@
           </div>
         </section>
 
-        <!-- 2. CALENDAR SCREEN -->
         <section class="app-screen" id="screen-calendar">
           <div class="calendar-header-card">
             <div class="calendar-nav-controls">
@@ -143,7 +134,6 @@
               <div>Su</div><div>Mo</div><div>Tu</div><div>We</div><div>Th</div><div>Fr</div><div>Sa</div>
             </div>
             <div class="calendar-grid" id="calendar-days-grid">
-              <!-- Dynamically populated -->
             </div>
           </div>
 
@@ -156,20 +146,17 @@
             </div>
           </div>
 
-          <!-- Log Detail Panel for Selected Date -->
           <div class="glass-card day-details-card" id="calendar-day-details">
             <div class="day-details-header">
               <h3 class="day-details-title" id="selected-date-label">June 27, 2026</h3>
               <button class="btn btn-secondary btn-sm" id="btn-edit-selected-day">Log / Edit</button>
             </div>
             <div id="selected-day-content" class="selected-day-body">
-              <!-- Populated by JavaScript -->
               <div class="empty-state-message">No entries tracked for this day. Click 'Log / Edit' to log flow, mood, symptoms, or vitals.</div>
             </div>
           </div>
         </section>
 
-        <!-- 3. HISTORY SCREEN -->
         <section class="app-screen" id="screen-history">
           <div class="section-header-row">
             <h2 class="section-main-title">Cycle History</h2>
@@ -182,9 +169,7 @@
             </button>
           </div>
 
-          <!-- List of Completed Cycles -->
           <div class="history-list-container" id="cycle-history-list">
-            <!-- Dynamically Populated -->
             <div class="empty-state-card">
               <div class="empty-state-icon">🌸</div>
               <h3>No completed cycles tracked yet</h3>
@@ -193,11 +178,9 @@
           </div>
         </section>
 
-        <!-- 4. STATISTICS SCREEN -->
         <section class="app-screen" id="screen-statistics">
           <h2 class="section-main-title">Averages & Insights</h2>
 
-          <!-- High Level Grid Cards -->
           <div class="stats-grid">
             <div class="stats-card">
               <span class="stats-num" id="stat-avg-cycle">28</span>
@@ -232,16 +215,13 @@
             </div>
           </div>
 
-          <!-- Symptom Frequency Chart -->
           <div class="glass-card stat-chart-card">
             <h3 class="chart-section-title">Common Symptoms</h3>
             <div class="chart-bars-container" id="symptoms-chart-container">
-              <!-- Dynamically Populated Bars -->
               <div class="empty-state-message">Add symptoms in your daily logs to generate frequency tracking.</div>
             </div>
           </div>
 
-          <!-- Vitals Analytics Card -->
           <div class="glass-card stat-chart-card">
             <h3 class="chart-section-title">Vitals Tracker Trends</h3>
             <div class="vitals-insights-summary" id="vitals-summary-container">
@@ -261,11 +241,9 @@
           </div>
         </section>
 
-        <!-- 5. SETTINGS SCREEN -->
         <section class="app-screen" id="screen-settings">
           <h2 class="section-main-title">App Settings</h2>
 
-          <!-- Settings Inputs Card -->
           <div class="glass-card settings-form-card">
             <h3 class="settings-card-title">Cycle Defaults</h3>
             
@@ -288,7 +266,6 @@
             <button class="btn btn-primary w-full" id="btn-save-defaults">Save Preferences</button>
           </div>
 
-          <!-- Reminder Settings -->
           <div class="glass-card settings-form-card">
             <h3 class="settings-card-title">Reminders & Notifications</h3>
             <p class="settings-desc">Keep track of your cycle phases with reminders. We simulate alerts even if system notifications are blocked.</p>
@@ -309,7 +286,6 @@
             </div>
           </div>
 
-          <!-- System & Storage Management -->
           <div class="glass-card settings-form-card danger-zone-card">
             <h3 class="settings-card-title danger-text">Privacy & App Data</h3>
             <p class="settings-desc">Saku is 100% offline-first. Your health parameters are stored locally inside your device's browser and are never sent to external servers.</p>
@@ -319,7 +295,6 @@
             </div>
           </div>
 
-          <!-- About Card -->
           <div class="about-card">
             <span class="about-app-name">Saku Version 1.0</span>
             <p class="about-dev-text">Lovingly engineered as a private, secure, offline cycle tracker. Built with vanilla HTML, CSS, and modern JavaScript.</p>
@@ -328,7 +303,6 @@
 
       </main>
 
-      <!-- Bottom Floating Nav Bar -->
       <nav class="app-nav" id="bottom-nav">
         <button class="nav-tab active" data-target="screen-home" aria-label="Home screen">
           <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -372,7 +346,6 @@
       </nav>
     </div>
 
-    <!-- Reusable Logging Modal (Saves, logs parameters, allows date change) -->
     <div class="modal-overlay hidden" id="log-modal">
       <div class="modal-card">
         <header class="modal-header">
@@ -386,13 +359,11 @@
         </header>
         
         <form class="modal-body" id="log-form" onsubmit="return false;">
-          <!-- Active Logging Date Picker -->
           <div class="modal-section date-selection-section">
             <label class="modal-section-label" for="log-date">Logging Date</label>
             <input class="form-input" type="date" id="log-date" required>
           </div>
 
-          <!-- Period Start/End Indicator (Crucial for Prediction Logic) -->
           <div class="modal-section toggle-section">
             <div class="log-indicator-row">
               <span class="toggle-label-title">Period Flowing Today?</span>
@@ -404,7 +375,6 @@
             <p class="section-explanation-text">Toggle on if you are currently bleeding on this day. Saku will calculate cycles based on these consecutive marked days.</p>
           </div>
 
-          <!-- Flow Tracker -->
           <div class="modal-section" id="flow-section-group">
             <span class="modal-section-label">Flow Intensity</span>
             <div class="flow-selector-grid">
@@ -428,7 +398,6 @@
             </div>
           </div>
 
-          <!-- Mood Tracker -->
           <div class="modal-section">
             <span class="modal-section-label">Current Mood</span>
             <div class="mood-selector-row">
@@ -470,7 +439,6 @@
             </div>
           </div>
 
-          <!-- Pain Tracker Slider -->
           <div class="modal-section">
             <div class="slider-header-row">
               <span class="modal-section-label">Pain Level</span>
@@ -484,7 +452,6 @@
             </div>
           </div>
 
-          <!-- Symptoms Chip Selection -->
           <div class="modal-section">
             <span class="modal-section-label">Symptoms (Select all that apply)</span>
             <div class="symptoms-chips-grid" id="modal-symptoms-grid">
@@ -501,7 +468,6 @@
             </div>
           </div>
 
-          <!-- Weight & Temperature Basal Tracking -->
           <div class="modal-section double-input-row">
             <div class="sub-input-group">
               <label class="form-label" for="log-weight">Weight (kg)</label>
@@ -513,13 +479,11 @@
             </div>
           </div>
 
-          <!-- Notes Area -->
           <div class="modal-section">
             <label class="modal-section-label" for="log-notes">Personal Notes</label>
             <textarea class="form-textarea" id="log-notes" rows="3" placeholder="Write about your sleep quality, flow details, or how you feel..."></textarea>
           </div>
 
-          <!-- Form Actions -->
           <div class="form-action-footer">
             <button type="button" class="btn btn-outline" id="btn-cancel-log">Cancel</button>
             <button type="submit" class="btn btn-primary" id="btn-save-log">Save Entry</button>
@@ -528,7 +492,6 @@
       </div>
     </div>
 
-    <!-- Reusable Log Past Cycle Modal (For logging ranges) -->
     <div class="modal-overlay hidden" id="cycle-range-modal">
       <div class="modal-card">
         <header class="modal-header">
