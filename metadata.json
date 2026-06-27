@@ -1,0 +1,6 @@
+{
+  "name": "Period Tracker",
+  "description": "An offline-first, private, and minimalist Period and Cycle Tracker with advanced prediction and statistics capabilities.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

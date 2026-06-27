@@ -1,0 +1,565 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Saku - Minimalist Period Tracker</title>
+    <link rel="stylesheet" href="style.css" />
+    <script src="script.js" defer></script>
+  </head>
+  <body>
+    <!-- App Container -->
+    <div class="app-container" id="app">
+      
+      <!-- Top Header (Contextual Greeting & In-App Reminders) -->
+      <header class="app-header">
+        <div class="header-main">
+          <div class="greeting-area">
+            <span class="greeting-prefix" id="header-greeting-time">Good morning,</span>
+            <h1 class="greeting-name">Beautiful</h1>
+          </div>
+          <div class="logo-area">
+            <svg class="header-logo-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="#ff758f"/>
+            </svg>
+            <span class="logo-text">Saku</span>
+          </div>
+        </div>
+        
+        <!-- Interactive Notification Banner -->
+        <div class="notification-banner hidden" id="reminder-banner">
+          <div class="banner-icon-wrapper">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0" />
+            </svg>
+          </div>
+          <div class="banner-content">
+            <p class="banner-text" id="reminder-banner-text">Your period is predicted to start tomorrow. Take care!</p>
+          </div>
+          <button class="banner-close" id="btn-close-banner" aria-label="Dismiss banner">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        </div>
+      </header>
+
+      <!-- Main Screens Wrapper -->
+      <main class="app-main">
+        
+        <!-- 1. HOME SCREEN -->
+        <section class="app-screen active" id="screen-home">
+          <!-- Circular Dashboard Widget -->
+          <div class="dashboard-card">
+            <div class="cycle-circle-container">
+              <svg class="cycle-svg" viewBox="0 0 200 200">
+                <circle class="cycle-track" cx="100" cy="100" r="85"></circle>
+                <circle class="cycle-progress" id="cycle-ring-progress" cx="100" cy="100" r="85"></circle>
+              </svg>
+              <div class="cycle-circle-content">
+                <span class="cycle-day-label" id="cycle-state-label">Cycle Day</span>
+                <span class="cycle-day-number" id="cycle-day-display">12</span>
+                <span class="cycle-countdown" id="cycle-countdown-display">Period in 16 days</span>
+              </div>
+            </div>
+            
+            <div class="dashboard-predictions">
+              <div class="pred-item">
+                <span class="pred-label">Next Period</span>
+                <span class="pred-val" id="home-pred-period">July 12, 2026</span>
+              </div>
+              <div class="pred-divider"></div>
+              <div class="pred-item">
+                <span class="pred-label">Ovulation</span>
+                <span class="pred-val" id="home-pred-ovulation">June 28, 2026</span>
+              </div>
+            </div>
+            
+            <button class="btn btn-primary btn-lg ripple" id="btn-open-quick-log">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+              </svg>
+              Quick Log Today
+            </button>
+          </div>
+
+          <!-- Predictions Card -->
+          <div class="glass-card pred-details-card">
+            <h3 class="card-title">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="16" y1="2" x2="16" y2="6"></line>
+                <line x1="8" y1="2" x2="8" y2="6"></line>
+                <line x1="3" y1="10" x2="21" y2="10"></line>
+              </svg>
+              Current Prediction Window
+            </h3>
+            <div class="prediction-window-visual">
+              <div class="window-bar">
+                <div class="window-phase phase-period" id="phase-bar-period" style="width: 20%;" title="Period"></div>
+                <div class="window-phase phase-follicular" id="phase-bar-follicular" style="width: 30%;" title="Follicular Phase"></div>
+                <div class="window-phase phase-fertile" id="phase-bar-fertile" style="width: 25%;" title="Fertile Window"></div>
+                <div class="window-phase phase-luteal" id="phase-bar-luteal" style="width: 25%;" title="Luteal Phase"></div>
+              </div>
+              <div class="window-legend">
+                <div class="legend-item"><span class="legend-dot dot-period"></span><span>Period</span></div>
+                <div class="legend-item"><span class="legend-dot dot-follicular"></span><span>Follicular</span></div>
+                <div class="legend-item"><span class="legend-dot dot-fertile"></span><span>Fertile</span></div>
+                <div class="legend-item"><span class="legend-dot dot-luteal"></span><span>Luteal</span></div>
+              </div>
+            </div>
+            <p class="prediction-summary-text" id="home-prediction-range-desc">
+              Your next fertile window is estimated from <strong>June 23 to June 29</strong>.
+            </p>
+          </div>
+
+          <!-- Supportive Quote -->
+          <div class="quote-card">
+            <span class="quote-icon">“</span>
+            <p class="quote-text" id="motivational-quote">Be gentle with yourself. You are doing the best you can.</p>
+            <span class="quote-author" id="motivational-author">— Saku Affirmation</span>
+          </div>
+        </section>
+
+        <!-- 2. CALENDAR SCREEN -->
+        <section class="app-screen" id="screen-calendar">
+          <div class="calendar-header-card">
+            <div class="calendar-nav-controls">
+              <button class="calendar-nav-btn" id="btn-prev-month" aria-label="Previous month">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="15 18 9 12 15 6"></polyline>
+                </svg>
+              </button>
+              <h2 class="calendar-month-title" id="calendar-month-year">June 2026</h2>
+              <button class="calendar-nav-btn" id="btn-next-month" aria-label="Next month">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
+              </button>
+            </div>
+            <div class="calendar-weekdays">
+              <div>Su</div><div>Mo</div><div>Tu</div><div>We</div><div>Th</div><div>Fr</div><div>Sa</div>
+            </div>
+            <div class="calendar-grid" id="calendar-days-grid">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+
+          <div class="calendar-legend-card">
+            <div class="cal-legend-row">
+              <div class="cal-legend-cell"><span class="circle-indicator ind-period"></span><span>Period Day</span></div>
+              <div class="cal-legend-cell"><span class="circle-indicator ind-pred-period"></span><span>Predicted Period</span></div>
+              <div class="cal-legend-cell"><span class="circle-indicator ind-fertile"></span><span>Fertile Window</span></div>
+              <div class="cal-legend-cell"><span class="circle-indicator ind-ovulation"></span><span>Ovulation Day</span></div>
+            </div>
+          </div>
+
+          <!-- Log Detail Panel for Selected Date -->
+          <div class="glass-card day-details-card" id="calendar-day-details">
+            <div class="day-details-header">
+              <h3 class="day-details-title" id="selected-date-label">June 27, 2026</h3>
+              <button class="btn btn-secondary btn-sm" id="btn-edit-selected-day">Log / Edit</button>
+            </div>
+            <div id="selected-day-content" class="selected-day-body">
+              <!-- Populated by JavaScript -->
+              <div class="empty-state-message">No entries tracked for this day. Click 'Log / Edit' to log flow, mood, symptoms, or vitals.</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 3. HISTORY SCREEN -->
+        <section class="app-screen" id="screen-history">
+          <div class="section-header-row">
+            <h2 class="section-main-title">Cycle History</h2>
+            <button class="btn btn-secondary btn-sm" id="btn-add-past-cycle">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+              </svg>
+              Log Period Dates
+            </button>
+          </div>
+
+          <!-- List of Completed Cycles -->
+          <div class="history-list-container" id="cycle-history-list">
+            <!-- Dynamically Populated -->
+            <div class="empty-state-card">
+              <div class="empty-state-icon">🌸</div>
+              <h3>No completed cycles tracked yet</h3>
+              <p>Start logging your period using the "Log Period Dates" button or Quick Log to see your historical cycles here.</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- 4. STATISTICS SCREEN -->
+        <section class="app-screen" id="screen-statistics">
+          <h2 class="section-main-title">Averages & Insights</h2>
+
+          <!-- High Level Grid Cards -->
+          <div class="stats-grid">
+            <div class="stats-card">
+              <span class="stats-num" id="stat-avg-cycle">28</span>
+              <span class="stats-unit">days</span>
+              <span class="stats-label">Avg. Cycle Length</span>
+            </div>
+            <div class="stats-card">
+              <span class="stats-num" id="stat-avg-period">5</span>
+              <span class="stats-unit">days</span>
+              <span class="stats-label">Avg. Period Duration</span>
+            </div>
+            <div class="stats-card">
+              <span class="stats-num" id="stat-longest-cycle">--</span>
+              <span class="stats-unit">days</span>
+              <span class="stats-label">Longest Cycle</span>
+            </div>
+            <div class="stats-card">
+              <span class="stats-num" id="stat-shortest-cycle">--</span>
+              <span class="stats-unit">days</span>
+              <span class="stats-label">Shortest Cycle</span>
+            </div>
+          </div>
+
+          <div class="stats-meta-row">
+            <div class="meta-stat-card">
+              <span class="meta-val" id="stat-current-streak">0</span>
+              <span class="meta-lbl">Current Cycle Streak</span>
+            </div>
+            <div class="meta-stat-card">
+              <span class="meta-val" id="stat-total-tracked">0</span>
+              <span class="meta-lbl">Total Tracked Cycles</span>
+            </div>
+          </div>
+
+          <!-- Symptom Frequency Chart -->
+          <div class="glass-card stat-chart-card">
+            <h3 class="chart-section-title">Common Symptoms</h3>
+            <div class="chart-bars-container" id="symptoms-chart-container">
+              <!-- Dynamically Populated Bars -->
+              <div class="empty-state-message">Add symptoms in your daily logs to generate frequency tracking.</div>
+            </div>
+          </div>
+
+          <!-- Vitals Analytics Card -->
+          <div class="glass-card stat-chart-card">
+            <h3 class="chart-section-title">Vitals Tracker Trends</h3>
+            <div class="vitals-insights-summary" id="vitals-summary-container">
+              <div class="insight-row">
+                <div class="insight-label">Last Logged Weight:</div>
+                <div class="insight-value" id="insight-weight">-- kg</div>
+              </div>
+              <div class="insight-row">
+                <div class="insight-label">Last Logged Temp:</div>
+                <div class="insight-value" id="insight-temp">-- °C</div>
+              </div>
+              <div class="insight-row">
+                <div class="insight-label">Average Pain Level:</div>
+                <div class="insight-value" id="insight-avg-pain">0.0 / 10</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 5. SETTINGS SCREEN -->
+        <section class="app-screen" id="screen-settings">
+          <h2 class="section-main-title">App Settings</h2>
+
+          <!-- Settings Inputs Card -->
+          <div class="glass-card settings-form-card">
+            <h3 class="settings-card-title">Cycle Defaults</h3>
+            
+            <div class="input-group">
+              <label class="form-label" for="setting-cycle-length">
+                Typical Cycle Length (days)
+                <span class="input-subtext">Usually between 21 and 35 days</span>
+              </label>
+              <input class="form-input" type="number" id="setting-cycle-length" min="15" max="50" value="28">
+            </div>
+
+            <div class="input-group">
+              <label class="form-label" for="setting-period-length">
+                Typical Period Duration (days)
+                <span class="input-subtext">Usually between 3 and 7 days</span>
+              </label>
+              <input class="form-input" type="number" id="setting-period-length" min="2" max="15" value="5">
+            </div>
+            
+            <button class="btn btn-primary w-full" id="btn-save-defaults">Save Preferences</button>
+          </div>
+
+          <!-- Reminder Settings -->
+          <div class="glass-card settings-form-card">
+            <h3 class="settings-card-title">Reminders & Notifications</h3>
+            <p class="settings-desc">Keep track of your cycle phases with reminders. We simulate alerts even if system notifications are blocked.</p>
+            
+            <div class="setting-toggle-row">
+              <div class="toggle-text-col">
+                <span class="toggle-title">Enable Cycle Alerts</span>
+                <span class="toggle-subtitle">Period, Ovulation, and Fertile window start</span>
+              </div>
+              <label class="switch" for="setting-reminders-toggle">
+                <input type="checkbox" id="setting-reminders-toggle">
+                <span class="slider-round"></span>
+              </label>
+            </div>
+            
+            <div class="notification-trigger-panel" id="notifications-test-panel">
+              <button class="btn btn-secondary w-full" id="btn-test-notification">Test Simulated Alert</button>
+            </div>
+          </div>
+
+          <!-- System & Storage Management -->
+          <div class="glass-card settings-form-card danger-zone-card">
+            <h3 class="settings-card-title danger-text">Privacy & App Data</h3>
+            <p class="settings-desc">Saku is 100% offline-first. Your health parameters are stored locally inside your device's browser and are never sent to external servers.</p>
+            
+            <div class="danger-btn-container">
+              <button class="btn btn-outline-danger w-full" id="btn-clear-data">Clear All Saved Logs</button>
+            </div>
+          </div>
+
+          <!-- About Card -->
+          <div class="about-card">
+            <span class="about-app-name">Saku Version 1.0</span>
+            <p class="about-dev-text">Lovingly engineered as a private, secure, offline cycle tracker. Built with vanilla HTML, CSS, and modern JavaScript.</p>
+          </div>
+        </section>
+
+      </main>
+
+      <!-- Bottom Floating Nav Bar -->
+      <nav class="app-nav" id="bottom-nav">
+        <button class="nav-tab active" data-target="screen-home" aria-label="Home screen">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+            <polyline points="9 22 9 12 15 12 15 22"></polyline>
+          </svg>
+          <span class="nav-label">Home</span>
+        </button>
+        <button class="nav-tab" data-target="screen-calendar" aria-label="Calendar screen">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+            <line x1="16" y1="2" x2="16" y2="6"></line>
+            <line x1="8" y1="2" x2="8" y2="6"></line>
+            <line x1="3" y1="10" x2="21" y2="10"></line>
+          </svg>
+          <span class="nav-label">Calendar</span>
+        </button>
+        <button class="nav-tab" data-target="screen-history" aria-label="Cycle history">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="12" y1="8" x2="12" y2="16"></line>
+            <line x1="8" y1="12" x2="16" y2="12"></line>
+            <circle cx="12" cy="12" r="10"></circle>
+          </svg>
+          <span class="nav-label">History</span>
+        </button>
+        <button class="nav-tab" data-target="screen-statistics" aria-label="Averages and insights">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="20" x2="18" y2="10"></line>
+            <line x1="12" y1="20" x2="12" y2="4"></line>
+            <line x1="6" y1="20" x2="6" y2="14"></line>
+          </svg>
+          <span class="nav-label">Stats</span>
+        </button>
+        <button class="nav-tab" data-target="screen-settings" aria-label="App settings">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+          </svg>
+          <span class="nav-label">Settings</span>
+        </button>
+      </nav>
+    </div>
+
+    <!-- Reusable Logging Modal (Saves, logs parameters, allows date change) -->
+    <div class="modal-overlay hidden" id="log-modal">
+      <div class="modal-card">
+        <header class="modal-header">
+          <h3 class="modal-title" id="log-modal-title">Log Today's Status</h3>
+          <button class="modal-close-btn" id="btn-close-log-modal" aria-label="Close modal">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.5">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        </header>
+        
+        <form class="modal-body" id="log-form" onsubmit="return false;">
+          <!-- Active Logging Date Picker -->
+          <div class="modal-section date-selection-section">
+            <label class="modal-section-label" for="log-date">Logging Date</label>
+            <input class="form-input" type="date" id="log-date" required>
+          </div>
+
+          <!-- Period Start/End Indicator (Crucial for Prediction Logic) -->
+          <div class="modal-section toggle-section">
+            <div class="log-indicator-row">
+              <span class="toggle-label-title">Period Flowing Today?</span>
+              <label class="switch" for="log-is-period">
+                <input type="checkbox" id="log-is-period">
+                <span class="slider-round"></span>
+              </label>
+            </div>
+            <p class="section-explanation-text">Toggle on if you are currently bleeding on this day. Saku will calculate cycles based on these consecutive marked days.</p>
+          </div>
+
+          <!-- Flow Tracker -->
+          <div class="modal-section" id="flow-section-group">
+            <span class="modal-section-label">Flow Intensity</span>
+            <div class="flow-selector-grid">
+              <input type="radio" name="flow-intensity" id="flow-light" value="light" class="radio-hidden">
+              <label for="flow-light" class="flow-chip">
+                <span class="flow-dot flow-dot-light"></span>
+                Light
+              </label>
+
+              <input type="radio" name="flow-intensity" id="flow-medium" value="medium" class="radio-hidden" checked>
+              <label for="flow-medium" class="flow-chip">
+                <span class="flow-dot flow-dot-medium"></span>
+                Medium
+              </label>
+
+              <input type="radio" name="flow-intensity" id="flow-heavy" value="heavy" class="radio-hidden">
+              <label for="flow-heavy" class="flow-chip">
+                <span class="flow-dot flow-dot-heavy"></span>
+                Heavy
+              </label>
+            </div>
+          </div>
+
+          <!-- Mood Tracker -->
+          <div class="modal-section">
+            <span class="modal-section-label">Current Mood</span>
+            <div class="mood-selector-row">
+              <input type="radio" name="mood" id="mood-happy" value="happy" class="radio-hidden" checked>
+              <label for="mood-happy" class="mood-icon-chip" title="Happy">
+                <span class="emoji-face">😊</span>
+                <span class="mood-name">Happy</span>
+              </label>
+
+              <input type="radio" name="mood" id="mood-normal" value="normal" class="radio-hidden">
+              <label for="mood-normal" class="mood-icon-chip" title="Normal">
+                <span class="emoji-face">😐</span>
+                <span class="mood-name">Normal</span>
+              </label>
+
+              <input type="radio" name="mood" id="mood-sad" value="sad" class="radio-hidden">
+              <label for="mood-sad" class="mood-icon-chip" title="Sad">
+                <span class="emoji-face">😢</span>
+                <span class="mood-name">Sad</span>
+              </label>
+
+              <input type="radio" name="mood" id="mood-irritated" value="irritated" class="radio-hidden">
+              <label for="mood-irritated" class="mood-icon-chip" title="Irritated">
+                <span class="emoji-face">😡</span>
+                <span class="mood-name">Irritated</span>
+              </label>
+
+              <input type="radio" name="mood" id="mood-tired" value="tired" class="radio-hidden">
+              <label for="mood-tired" class="mood-icon-chip" title="Tired">
+                <span class="emoji-face">😴</span>
+                <span class="mood-name">Tired</span>
+              </label>
+
+              <input type="radio" name="mood" id="mood-anxious" value="anxious" class="radio-hidden">
+              <label for="mood-anxious" class="mood-icon-chip" title="Anxious">
+                <span class="emoji-face">😰</span>
+                <span class="mood-name">Anxious</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Pain Tracker Slider -->
+          <div class="modal-section">
+            <div class="slider-header-row">
+              <span class="modal-section-label">Pain Level</span>
+              <span class="slider-value-badge" id="pain-value-indicator">3 / 10</span>
+            </div>
+            <input type="range" class="pain-slider" id="log-pain" min="0" max="10" value="3">
+            <div class="slider-range-labels">
+              <span>None (0)</span>
+              <span>Moderate (5)</span>
+              <span>Unbearable (10)</span>
+            </div>
+          </div>
+
+          <!-- Symptoms Chip Selection -->
+          <div class="modal-section">
+            <span class="modal-section-label">Symptoms (Select all that apply)</span>
+            <div class="symptoms-chips-grid" id="modal-symptoms-grid">
+              <div class="symptom-toggle-chip" data-symptom="cramps">Cramps</div>
+              <div class="symptom-toggle-chip" data-symptom="headache">Headache</div>
+              <div class="symptom-toggle-chip" data-symptom="acne">Acne</div>
+              <div class="symptom-toggle-chip" data-symptom="bloating">Bloating</div>
+              <div class="symptom-toggle-chip" data-symptom="fatigue">Fatigue</div>
+              <div class="symptom-toggle-chip" data-symptom="nausea">Nausea</div>
+              <div class="symptom-toggle-chip" data-symptom="backpain">Back Pain</div>
+              <div class="symptom-toggle-chip" data-symptom="breasttenderness">Breast Tenderness</div>
+              <div class="symptom-toggle-chip" data-symptom="foodcravings">Food Cravings</div>
+              <div class="symptom-toggle-chip" data-symptom="moodswings">Mood Swings</div>
+            </div>
+          </div>
+
+          <!-- Weight & Temperature Basal Tracking -->
+          <div class="modal-section double-input-row">
+            <div class="sub-input-group">
+              <label class="form-label" for="log-weight">Weight (kg)</label>
+              <input class="form-input" type="number" id="log-weight" step="0.1" min="20" max="250" placeholder="e.g. 55.4">
+            </div>
+            <div class="sub-input-group">
+              <label class="form-label" for="log-temp">Basal Temp (°C)</label>
+              <input class="form-input" type="number" id="log-temp" step="0.01" min="34" max="42" placeholder="e.g. 36.65">
+            </div>
+          </div>
+
+          <!-- Notes Area -->
+          <div class="modal-section">
+            <label class="modal-section-label" for="log-notes">Personal Notes</label>
+            <textarea class="form-textarea" id="log-notes" rows="3" placeholder="Write about your sleep quality, flow details, or how you feel..."></textarea>
+          </div>
+
+          <!-- Form Actions -->
+          <div class="form-action-footer">
+            <button type="button" class="btn btn-outline" id="btn-cancel-log">Cancel</button>
+            <button type="submit" class="btn btn-primary" id="btn-save-log">Save Entry</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Reusable Log Past Cycle Modal (For logging ranges) -->
+    <div class="modal-overlay hidden" id="cycle-range-modal">
+      <div class="modal-card">
+        <header class="modal-header">
+          <h3 class="modal-title">Log Period Cycle</h3>
+          <button class="modal-close-btn" id="btn-close-range-modal" aria-label="Close modal">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.5">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        </header>
+        
+        <form class="modal-body" id="cycle-range-form" onsubmit="return false;">
+          <div class="modal-section">
+            <label class="form-label" for="cycle-start-date">Period Start Date</label>
+            <input class="form-input" type="date" id="cycle-start-date" required>
+          </div>
+
+          <div class="modal-section">
+            <label class="form-label" for="cycle-end-date">Period End Date (Estimated/Actual)</label>
+            <input class="form-input" type="date" id="cycle-end-date" required>
+          </div>
+          
+          <p class="section-explanation-text">Entering standard start and end dates of past periods helps Saku build highly accurate prediction algorithms based on your true cycle history.</p>
+
+          <div class="form-action-footer">
+            <button type="button" class="btn btn-outline" id="btn-cancel-range">Cancel</button>
+            <button type="submit" class="btn btn-primary" id="btn-save-range">Log Cycle</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </body>
+</html>
