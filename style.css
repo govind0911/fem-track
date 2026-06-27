@@ -1,23 +1,15 @@
-/* 
- * Saku Minimalist Period Tracker
- * Clean, elegant, soft pink & white aesthetic.
- * Fully responsive and optimized for touch interactions.
- */
-
-/* Google Fonts Import */
 @import url('https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
 
-/* Style Constants & Color System */
 :root {
-  --primary: #ff4d6d; /* pink-deep */
-  --primary-light: #fff5f7; /* pink-light */
-  --primary-hover: #ff8fa3; /* pink-accent */
+  --primary: #ff4d6d;
+  --primary-light: #fff5f7;
+  --primary-hover: #ff8fa3;
   --accent-soft: rgba(255, 143, 163, 0.1);
-  --dark-text: #5c3d46; /* text-main */
-  --muted-text: #a38b91; /* text-muted */
-  --bg-app: rgba(255, 245, 247, 0.45); /* frosted transparent bg */
-  --card-glass: rgba(255, 255, 255, 0.45); /* glass */
-  --card-border: rgba(255, 255, 255, 0.6); /* glass-border */
+  --dark-text: #5c3d46;
+  --muted-text: #a38b91;
+  --bg-app: rgba(255, 245, 247, 0.45);
+  --card-glass: rgba(255, 255, 255, 0.45);
+  --card-border: rgba(255, 255, 255, 0.6);
   --card-shadow: 0 20px 40px rgba(255, 143, 163, 0.12);
   --card-shadow-hover: 0 25px 50px rgba(255, 143, 163, 0.2);
   --period-color: #ff4d6d;
@@ -28,7 +20,6 @@
   --transition-speed: 0.3s;
 }
 
-/* Base Styles & Typography */
 * {
   box-sizing: border-box;
   margin: 0;
@@ -46,7 +37,6 @@ body {
   align-items: flex-start;
 }
 
-/* App Outer Shell (Simulates a mobile app frame centered on desktop) */
 .app-container {
   width: 100%;
   max-width: 480px;
@@ -73,14 +63,12 @@ body {
     border: 8px solid rgba(255, 255, 255, 0.7);
   }
   
-  /* Show scrolling for main area inside container on desktop */
   .app-main {
     overflow-y: auto;
     flex: 1;
   }
 }
 
-/* Scrollbar Styling */
 .app-main::-webkit-scrollbar,
 .modal-body::-webkit-scrollbar {
   width: 5px;
@@ -95,7 +83,6 @@ body {
   border-radius: 10px;
 }
 
-/* Header & Notifications Styles */
 .app-header {
   background: rgba(255, 255, 255, 0.3);
   backdrop-filter: blur(12px);
@@ -157,13 +144,11 @@ body {
   color: var(--dark-text);
 }
 
-/* Pulse Heart Keyframes */
 @keyframes pulse-heart {
   0% { transform: scale(1); }
   100% { transform: scale(1.15); }
 }
 
-/* Notification Banner Card */
 .notification-banner {
   margin-top: 14px;
   background: rgba(255, 92, 122, 0.08);
@@ -216,14 +201,12 @@ body {
   color: var(--dark-text);
 }
 
-/* Screens Wrapper styling */
 .app-main {
   flex: 1;
   padding: 20px;
   position: relative;
 }
 
-/* Screen visibility states */
 .app-screen {
   display: none;
   animation: fade-slide-up 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
@@ -255,7 +238,6 @@ body {
   }
 }
 
-/* Glassmorphic cards styling */
 .glass-card {
   background: var(--card-glass);
   backdrop-filter: blur(12px);
@@ -287,7 +269,6 @@ body {
   color: var(--primary);
 }
 
-/* Buttons System */
 .btn {
   border: none;
   font-family: inherit;
@@ -360,9 +341,6 @@ body {
   width: 100%;
 }
 
-/* 1. HOME SCREEN SPECIFIC STYLES */
-
-/* Dashboard Circular Card */
 .dashboard-card {
   background: var(--card-glass);
   backdrop-filter: blur(12px);
@@ -378,7 +356,6 @@ body {
   position: relative;
 }
 
-/* Circular progress ring */
 .cycle-circle-container {
   width: 190px;
   height: 190px;
@@ -416,7 +393,7 @@ body {
   stroke: var(--primary);
   stroke-width: 10px;
   stroke-linecap: round;
-  stroke-dasharray: 534; /* 2 * PI * 85 */
+  stroke-dasharray: 534;
   stroke-dashoffset: 534;
   transition: stroke-dashoffset 1s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -464,7 +441,6 @@ body {
   max-width: 140px;
 }
 
-/* Dashboard Prediction items grid */
 .dashboard-predictions {
   display: flex;
   width: 100%;
@@ -504,7 +480,6 @@ body {
   color: var(--dark-text);
 }
 
-/* Prediction Timeline Visual inside Dashboard */
 .prediction-window-visual {
   margin: 12px 0;
 }
@@ -568,7 +543,6 @@ body {
   color: var(--dark-text);
 }
 
-/* Beautiful supportive quote card */
 .quote-card {
   background: linear-gradient(135deg, #ffe5ec 0%, #fff0f3 100%);
   border-radius: 24px;
@@ -610,9 +584,6 @@ body {
   z-index: 1;
 }
 
-/* 2. CALENDAR SCREEN SPECIFIC STYLES */
-
-/* Calendar header with months selection */
 .calendar-header-card {
   background: var(--card-glass);
   backdrop-filter: blur(12px);
@@ -676,7 +647,6 @@ body {
   column-gap: 2px;
 }
 
-/* Days elements in Grid */
 .calendar-day-cell {
   position: relative;
   aspect-ratio: 1;
@@ -700,13 +670,11 @@ body {
   transform: scale(0.9);
 }
 
-/* Empty days or days from other months styling */
 .other-month-day {
   color: #d1d5db;
   cursor: default;
 }
 
-/* Active highlights */
 .calendar-day-cell.current-today {
   border: 1.5px solid var(--primary);
   font-weight: 700;
@@ -717,7 +685,6 @@ body {
   z-index: 2;
 }
 
-/* Period days visual tags */
 .calendar-day-cell.day-period {
   background-color: var(--period-color);
   color: white;
@@ -731,7 +698,6 @@ body {
   font-weight: 600;
 }
 
-/* Fertile and Ovulation highlights */
 .calendar-day-cell.day-fertile {
   background-color: #e2e8f0;
   color: #334155;
@@ -739,7 +705,6 @@ body {
 }
 
 .calendar-day-cell.day-fertile-period {
-  /* Blend of period and fertile window if overlap */
   background: linear-gradient(135deg, var(--period-color) 40%, var(--fertile-color) 100%);
   color: white;
 }
@@ -751,7 +716,6 @@ body {
   box-shadow: 0 0 8px rgba(131, 56, 236, 0.3);
 }
 
-/* Visual dot for days that have user logs */
 .logged-dot-indicator {
   position: absolute;
   bottom: 4px;
@@ -765,7 +729,6 @@ body {
   background-color: white;
 }
 
-/* Calendar Legend styling */
 .calendar-legend-card {
   background: var(--card-glass);
   backdrop-filter: blur(12px);
@@ -805,7 +768,6 @@ body {
 .ind-fertile { background-color: #e2e8f0; }
 .ind-ovulation { background-color: var(--ovulation-color); }
 
-/* Day detail card below calendar */
 .day-details-card {
   margin-bottom: 0;
 }
@@ -909,7 +871,6 @@ body {
   padding: 14px 0;
 }
 
-/* 3. HISTORY SCREEN SPECIFIC STYLES */
 .section-header-row {
   display: flex;
   justify-content: space-between;
@@ -930,7 +891,6 @@ body {
   gap: 14px;
 }
 
-/* Individual cycle card styles */
 .cycle-history-card {
   background: var(--card-glass);
   backdrop-filter: blur(12px);
@@ -1028,7 +988,6 @@ body {
   white-space: nowrap;
 }
 
-/* Empty State elements */
 .empty-state-card {
   text-align: center;
   padding: 40px 20px;
@@ -1056,7 +1015,6 @@ body {
   margin-bottom: 18px;
 }
 
-/* 4. STATISTICS SCREEN SPECIFIC STYLES */
 .stats-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -1129,7 +1087,6 @@ body {
   text-transform: uppercase;
 }
 
-/* Chart Bars layout using pure CSS */
 .chart-section-title {
   font-family: 'Comfortaa', cursive, sans-serif;
   font-size: 0.95rem;
@@ -1177,11 +1134,10 @@ body {
   height: 100%;
   background: linear-gradient(90deg, #ff8da1, #ff5c7a);
   border-radius: 4px;
-  width: 0%; /* Updated dynamically */
+  width: 0%;
   transition: width 0.8s ease-in-out;
 }
 
-/* Vitals analytical trends formatting */
 .vitals-insights-summary {
   display: flex;
   flex-direction: column;
@@ -1210,7 +1166,6 @@ body {
   color: var(--dark-text);
 }
 
-/* 5. SETTINGS SCREEN SPECIFIC STYLES */
 .settings-form-card {
   background: white;
 }
@@ -1225,7 +1180,6 @@ body {
   padding-bottom: 6px;
 }
 
-/* Form layout elements */
 .input-group {
   margin-bottom: 16px;
 }
@@ -1289,7 +1243,6 @@ body {
   line-height: 1.3;
 }
 
-/* Toggle Switch Widget styling */
 .switch {
   position: relative;
   display: inline-block;
@@ -1345,7 +1298,6 @@ input:focus + .slider-round {
   transition: opacity 0.3s ease;
 }
 
-/* Privacy Danger Zone Styles */
 .danger-zone-card {
   border: 1.5px solid #ffccd5;
 }
@@ -1365,7 +1317,6 @@ input:focus + .slider-round {
   margin-top: 10px;
 }
 
-/* About Card styling */
 .about-card {
   text-align: center;
   padding: 10px 10px 24px;
@@ -1386,7 +1337,6 @@ input:focus + .slider-round {
   line-height: 1.4;
 }
 
-/* Bottom Nav bar floating menu */
 .app-nav {
   position: absolute;
   bottom: 0;
@@ -1438,7 +1388,6 @@ input:focus + .slider-round {
   font-weight: 600;
 }
 
-/* Active tab state styles */
 .nav-tab.active {
   color: var(--primary-hover);
 }
@@ -1448,7 +1397,6 @@ input:focus + .slider-round {
   color: var(--primary);
 }
 
-/* Dot indicator on active tab */
 .nav-tab.active::after {
   content: "";
   position: absolute;
@@ -1459,7 +1407,6 @@ input:focus + .slider-round {
   border-radius: 50%;
 }
 
-/* MODAL STRUCTURE & STYLES (Logging Screen) */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -1549,7 +1496,6 @@ input:focus + .slider-round {
   color: var(--dark-text);
 }
 
-/* Scrollable modal body content */
 .modal-body {
   overflow-y: auto;
   padding: 20px;
@@ -1583,7 +1529,6 @@ input:focus + .slider-round {
   margin-top: 6px;
 }
 
-/* Flow Tracker radio chips custom widget */
 .flow-selector-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -1625,7 +1570,6 @@ input:focus + .slider-round {
 .flow-dot-medium { background-color: var(--primary); }
 .flow-dot-heavy { background-color: var(--period-color); }
 
-/* Flow selected checked classes */
 input[id="flow-light"]:checked + label {
   background-color: var(--primary-light);
   border-color: var(--follicular-color);
@@ -1642,7 +1586,6 @@ input[id="flow-heavy"]:checked + label {
   color: var(--period-color);
 }
 
-/* Mood selector rows & custom radio items */
 .mood-selector-row {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -1674,7 +1617,6 @@ input[id="flow-heavy"]:checked + label {
   color: var(--muted-text);
 }
 
-/* Mood selected radio logic */
 input[name="mood"]:checked + label {
   background-color: var(--primary-light);
   border-color: var(--primary);
@@ -1688,7 +1630,6 @@ input[name="mood"]:checked + label .mood-name {
   color: var(--primary-hover);
 }
 
-/* Pain slider customizing */
 .slider-header-row {
   display: flex;
   justify-content: space-between;
@@ -1740,7 +1681,6 @@ input[name="mood"]:checked + label .mood-name {
   font-weight: 500;
 }
 
-/* Symptoms multi chips choice */
 .symptoms-chips-grid {
   display: flex;
   flex-wrap: wrap;
@@ -1771,7 +1711,6 @@ input[name="mood"]:checked + label .mood-name {
   font-weight: 600;
 }
 
-/* Double input forms */
 .double-input-row {
   display: flex;
   gap: 12px;
@@ -1801,7 +1740,6 @@ input[name="mood"]:checked + label .mood-name {
   box-shadow: 0 0 0 3px rgba(255, 117, 143, 0.15);
 }
 
-/* Form Footer alignment */
 .form-action-footer {
   display: flex;
   gap: 10px;
@@ -1812,18 +1750,15 @@ input[name="mood"]:checked + label .mood-name {
   flex: 1;
 }
 
-/* UTILITY / HELPER STYLES */
 .hidden {
   display: none !important;
 }
 
-/* Ripple animations */
 .ripple {
   position: relative;
   overflow: hidden;
 }
 
-/* Date Logger Section Specific switches */
 .toggle-section {
   background: linear-gradient(135deg, #ffffff 0%, #fff6f8 100%);
   border: 1px solid rgba(255, 117, 143, 0.1);
