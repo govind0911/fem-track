@@ -1,28 +1,20 @@
-/**
- * Saku - Minimalist Period Tracker
- * Pure vanilla JavaScript with offline-first local storage persistence,
- * cycle prediction logic, calendar management, and statistics.
- */
-
-// --- STATE MANAGEMENT ---
 const state = {
   defaults: {
     cycleLength: 28,
     periodLength: 5,
     enableNotifications: false
   },
-  cycles: [], // Array of completed cycle intervals: [{ id, startDate, endDate, duration }]
-  dailyLogs: {}, // Map of daily logs keyed by YYYY-MM-DD: { date, isPeriodDay, flow, mood, pain, symptoms:[], weight, temp, notes }
-  selectedDate: '', // Active date being viewed or logged (YYYY-MM-DD)
-  currentYear: 0, // Year being viewed in the calendar
-  currentMonth: 0, // Month being viewed in the calendar (0-indexed)
+  cycles: [],
+  dailyLogs: {},
+  selectedDate: '',
+  currentYear: 0,
+  currentMonth: 0,
   activeTab: 'screen-home',
-  selectedSymptomChips: [] // Temporary storage for currently selected chips in log modal
+  selectedSymptomChips: []
 };
 
-// --- CONFIGURATION CONSTANTS & HELPERS ---
 const MOTIVATIONAL_QUOTES = [
-  { text: "Be gentle with yourself. You are doing the best you can.", author: "Saku Affirmation" },
+  { text: "Be swaggy", author: "Saku Affirmation" },
   { text: "Your body is a beautiful, self-regulating ecosystem of natural cycles.", author: "Wellness Wisdom" },
   { text: "Rest is not a luxury, it is a biological necessity. Listen to your body.", author: "Self Care Guide" },
   { text: "Every phase of your cycle brings its own unique strengths.", author: "Empower Daily" },
@@ -31,7 +23,6 @@ const MOTIVATIONAL_QUOTES = [
   { text: "A cozy tea, a warm wrap, and deep breaths can work wonders today.", author: "Cozy Support" }
 ];
 
-// Formatting helper: YYYY-MM-DD
 function getLocalDateString(date = new Date()) {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -39,13 +30,11 @@ function getLocalDateString(date = new Date()) {
   return `${year}-${month}-${day}`;
 }
 
-// Convert date string YYYY-MM-DD to Date object
 function parseLocalDate(dateStr) {
   const [year, month, day] = dateStr.split('-').map(Number);
   return new Date(year, month - 1, day);
 }
 
-// Calculate days difference between two date strings (date2 - date1)
 function dateDiffInDays(dateStr1, dateStr2) {
   const d1 = parseLocalDate(dateStr1);
   const d2 = parseLocalDate(dateStr2);
@@ -53,27 +42,23 @@ function dateDiffInDays(dateStr1, dateStr2) {
   return Math.round(diffTime / (1000 * 60 * 60 * 24));
 }
 
-// Add/subtract days from a date string, returning YYYY-MM-DD
 function addDaysToDate(dateStr, days) {
   const date = parseLocalDate(dateStr);
   date.setDate(date.getDate() + days);
   return getLocalDateString(date);
 }
 
-// Format date into a friendly format e.g., "June 27, 2026"
 function formatFriendlyDate(dateStr) {
   if (!dateStr) return '--';
   const date = parseLocalDate(dateStr);
   return date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
 }
 
-// Format month and year
 function formatMonthYear(year, monthIndex) {
   const d = new Date(year, monthIndex, 1);
   return d.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
 }
 
-// Get greeting based on time of day
 function getGreetingPrefix() {
   const hour = new Date().getHours();
   if (hour < 12) return "Good morning,";
@@ -81,7 +66,6 @@ function getGreetingPrefix() {
   return "Good evening,";
 }
 
-// --- LOCAL STORAGE SERVICES ---
 function loadDataFromStorage() {
   const storedDefaults = localStorage.getItem('saku_defaults');
   state.defaults = storedDefaults ? JSON.parse(storedDefaults) : { ...state.defaults };
@@ -99,7 +83,6 @@ function saveDataToStorage() {
   localStorage.setItem('saku_daily_logs', JSON.stringify(state.dailyLogs));
 }
 
-// --- CORE PREDICTION ENGINE ---
 function runPredictionEngine() {
   const defaultC = parseInt(state.defaults.cycleLength, 10) || 28;
   const defaultP = parseInt(state.defaults.periodLength, 10) || 5;
@@ -107,9 +90,7 @@ function runPredictionEngine() {
   let avgCycleLength = defaultC;
   let avgPeriodLength = defaultP;
 
-  // If we have tracked cycles, compute empirical averages
   if (state.cycles.length > 0) {
-    // 1. Calculate average period length
     let sumPeriod = 0;
     state.cycles.forEach(c => {
       const duration = dateDiffInDays(c.startDate, c.endDate) + 1;
@@ -117,16 +98,13 @@ function runPredictionEngine() {
     });
     avgPeriodLength = Math.round(sumPeriod / state.cycles.length) || defaultP;
 
-    // 2. Calculate average cycle length (gap between consecutive cycle starts)
     if (state.cycles.length >= 2) {
-      // Sort cycles by start date ascending
       const sorted = [...state.cycles].sort((a, b) => a.startDate.localeCompare(b.startDate));
       let sumCycle = 0;
       let countCycle = 0;
       
       for (let i = 0; i < sorted.length - 1; i++) {
         const gap = dateDiffInDays(sorted[i].startDate, sorted[i+1].startDate);
-        // Exclude unreasonable gaps (e.g., missed logging or double-logging) to ensure accuracy
         if (gap >= 15 && gap <= 45) {
           sumCycle += gap;
           countCycle++;
@@ -139,13 +117,11 @@ function runPredictionEngine() {
     }
   }
 
-  // Find the last known period start date
   let lastPeriodStart = '';
   if (state.cycles.length > 0) {
     const sorted = [...state.cycles].sort((a, b) => a.startDate.localeCompare(b.startDate));
     lastPeriodStart = sorted[sorted.length - 1].startDate;
   } else {
-    // If no cycle structures exist yet, search daily logs for the most recent period day
     const periodDays = Object.keys(state.dailyLogs)
       .filter(d => state.dailyLogs[d].isPeriodDay)
       .sort();
@@ -154,10 +130,8 @@ function runPredictionEngine() {
     }
   }
 
-  // If no bleeding has ever been recorded, default reference is today
   const referenceDate = lastPeriodStart || getLocalDateString();
 
-  // Predict next occurrences
   const nextPeriodStart = addDaysToDate(referenceDate, avgCycleLength);
   const nextPeriodEnd = addDaysToDate(nextPeriodStart, avgPeriodLength - 1);
   const ovulationDate = addDaysToDate(nextPeriodStart, -14);
@@ -176,15 +150,7 @@ function runPredictionEngine() {
   };
 }
 
-// --- AUTOMATIC CYCLE SYNCHRONIZATION LOGIC ---
-/**
- * Scans all daily logs where 'isPeriodDay' is true and reconstructs/groups
- * them into coherent cycle intervals saved in state.cycles.
- * This ensures that when users log individual period days, the app instantly
- * generates the historic cycle ranges, averages, and future predictions.
- */
 function rebuildCyclesFromDailyLogs() {
-  // Extract all dates flagged as period flow
   const periodDates = Object.keys(state.dailyLogs)
     .filter(dateKey => state.dailyLogs[dateKey].isPeriodDay)
     .sort();
@@ -203,7 +169,6 @@ function rebuildCyclesFromDailyLogs() {
     const nextDate = periodDates[i];
     const gap = dateDiffInDays(currentPrev, nextDate);
 
-    // If gap between consecutive period days is > 3 days, we treat it as a new cycle/period event
     if (gap > 4) {
       generatedCycles.push({
         id: parseLocalDate(currentStart).getTime().toString(),
@@ -215,7 +180,6 @@ function rebuildCyclesFromDailyLogs() {
     currentPrev = nextDate;
   }
 
-  // Push final cycle interval
   generatedCycles.push({
     id: parseLocalDate(currentStart).getTime().toString(),
     startDate: currentStart,
@@ -226,11 +190,6 @@ function rebuildCyclesFromDailyLogs() {
   saveDataToStorage();
 }
 
-/**
- * Opposite sync: When a user manually logs a past cycle range (startDate to endDate),
- * we automatically write dailyLogs for each date in that range, flag them as
- * period days, and save.
- */
 function writePeriodRangeToDailyLogs(start, end) {
   let curr = start;
   const limitDays = dateDiffInDays(start, end);
@@ -255,11 +214,6 @@ function writePeriodRangeToDailyLogs(start, end) {
   }
 }
 
-// --- SCHEDULER & NOTIFICATIONS ---
-/**
- * Checks predictions relative to today's date and shows simulated reminders
- * in a card or sends system Web Notifications if permission is granted.
- */
 function runReminderService(predictions) {
   const todayStr = getLocalDateString();
   const banner = document.getElementById('reminder-banner');
@@ -290,7 +244,6 @@ function runReminderService(predictions) {
     bannerText.innerHTML = `<strong>Saku Reminder:</strong> ${message}`;
     banner.classList.remove('hidden');
 
-    // Trigger System Notification if API exists and is granted
     if ("Notification" in window && Notification.permission === "granted") {
       new Notification("Saku Cycle Tracker", {
         body: message,
@@ -305,11 +258,9 @@ function runReminderService(predictions) {
 function triggerSimulatedTestNotification() {
   const message = "Saku Test Alert: Cycle alerts are functioning perfectly! Saku will keep you informed of upcoming period days.";
   
-  // Try Web Notification
   if ("Notification" in window && Notification.permission === "granted") {
     new Notification("Saku Test Notification", { body: message });
   } else {
-    // Fallback to simple banner modal or immediate app popup
     const banner = document.getElementById('reminder-banner');
     const bannerText = document.getElementById('reminder-banner-text');
     bannerText.innerHTML = `<strong>Saku Test Alert:</strong> ${message}`;
@@ -318,21 +269,15 @@ function triggerSimulatedTestNotification() {
   }
 }
 
-// --- VIEW CONTROLLERS (Navigation, Rendering) ---
-
-// Handle Tab Navigation switching
 function switchTab(targetId) {
-  // Hide all screens
   document.querySelectorAll('.app-screen').forEach(screen => {
     screen.classList.remove('active');
   });
 
-  // Deactivate all navigation buttons
   document.querySelectorAll('.nav-tab').forEach(tab => {
     tab.classList.remove('active');
   });
 
-  // Activate targeted screen and tab button
   const screen = document.getElementById(targetId);
   if (screen) {
     screen.classList.add('active');
@@ -344,7 +289,6 @@ function switchTab(targetId) {
     tabBtn.classList.add('active');
   }
 
-  // Render updates for specific screens on load
   if (targetId === 'screen-home') {
     renderHomeScreen();
   } else if (targetId === 'screen-calendar') {
@@ -358,15 +302,12 @@ function switchTab(targetId) {
   }
 }
 
-// Render 1: HOME SCREEN
 function renderHomeScreen() {
   const predictions = runPredictionEngine();
   const todayStr = getLocalDateString();
 
-  // Greeting
   document.getElementById('header-greeting-time').textContent = getGreetingPrefix();
 
-  // Cycle Ring Dasharray calculation
   const ring = document.getElementById('cycle-ring-progress');
   const dayDisplay = document.getElementById('cycle-day-display');
   const stateLabel = document.getElementById('cycle-state-label');
@@ -379,12 +320,10 @@ function renderHomeScreen() {
       const cycleDay = elapsedDays + 1;
       dayDisplay.textContent = cycleDay;
       
-      // Calculate fraction of standard cycle complete
       const fraction = Math.min(cycleDay / predictions.avgCycleLength, 1);
       const dashOffset = 534 - (534 * fraction);
       ring.style.strokeDashoffset = dashOffset;
 
-      // Classify current day phase
       let currentPhase = "Follicular Phase";
       if (todayStr >= predictions.fertileStart && todayStr <= predictions.fertileEnd) {
         currentPhase = "Fertile Window";
@@ -402,7 +341,6 @@ function renderHomeScreen() {
           stateLabel.style.backgroundColor = "var(--period-color)";
           stateLabel.style.color = "white";
         } else {
-          // Luteal is usually post ovulation (approx 14 days before next period)
           const daysToPeriod = dateDiffInDays(todayStr, predictions.nextPeriodStart);
           if (daysToPeriod <= 14 && daysToPeriod > 0) {
             currentPhase = "Luteal Phase";
@@ -416,7 +354,6 @@ function renderHomeScreen() {
       }
       stateLabel.textContent = currentPhase;
     } else {
-      // Future logged starting date
       dayDisplay.textContent = "--";
       stateLabel.textContent = "Upcoming Period";
       ring.style.strokeDashoffset = 534;
@@ -427,7 +364,6 @@ function renderHomeScreen() {
     ring.style.strokeDashoffset = 534;
   }
 
-  // Days until next period prediction
   const daysToNext = dateDiffInDays(todayStr, predictions.nextPeriodStart);
   if (daysToNext > 0) {
     countdownDisplay.textContent = `Period in ${daysToNext} day${daysToNext > 1 ? 's' : ''}`;
@@ -437,15 +373,13 @@ function renderHomeScreen() {
     countdownDisplay.textContent = `Period is late by ${Math.abs(daysToNext)} day${Math.abs(daysToNext) > 1 ? 's' : ''}`;
   }
 
-  // Key prediction text fields
   document.getElementById('home-pred-period').textContent = formatFriendlyDate(predictions.nextPeriodStart);
   document.getElementById('home-pred-ovulation').textContent = formatFriendlyDate(predictions.ovulationDate);
 
-  // Phase bar proportional dimensions
   const totalLength = predictions.avgCycleLength;
   const periodW = (predictions.avgPeriodLength / totalLength) * 100;
-  const fertileW = (7 / totalLength) * 100; // fertile window standard length is 7 days
-  const lutealW = (14 / totalLength) * 100; // luteal standard is 14 days
+  const fertileW = (7 / totalLength) * 100;
+  const lutealW = (14 / totalLength) * 100;
   const follicularW = 100 - (periodW + fertileW + lutealW);
 
   document.getElementById('phase-bar-period').style.width = `${periodW}%`;
@@ -456,16 +390,13 @@ function renderHomeScreen() {
   document.getElementById('home-prediction-range-desc').innerHTML = 
     `Your next predicted period start date is <strong>${formatFriendlyDate(predictions.nextPeriodStart)}</strong>. Your peak fertile window is estimated from <strong>${formatFriendlyDate(predictions.fertileStart)}</strong> to <strong>${formatFriendlyDate(predictions.fertileEnd)}</strong>.`;
 
-  // Random support quotes carousel
   const randomQuoteIndex = Math.floor(Math.random() * MOTIVATIONAL_QUOTES.length);
   document.getElementById('motivational-quote').textContent = MOTIVATIONAL_QUOTES[randomQuoteIndex].text;
   document.getElementById('motivational-author').textContent = `— ${MOTIVATIONAL_QUOTES[randomQuoteIndex].author}`;
 
-  // Execute reminder alert matching
   runReminderService(predictions);
 }
 
-// Render 2: CALENDAR SCREEN
 function renderCalendar() {
   const container = document.getElementById('calendar-days-grid');
   container.innerHTML = '';
@@ -474,19 +405,15 @@ function renderCalendar() {
   const year = state.currentYear;
   const month = state.currentMonth;
 
-  // Render Month title
   document.getElementById('calendar-month-year').textContent = formatMonthYear(year, month);
 
-  // Get first day of the week & total days of current active month
   const firstDayIndex = new Date(year, month, 1).getDay();
   const totalDays = new Date(year, month + 1, 0).getDate();
 
-  // Get total days of previous month for filling empty starting spaces
   const prevMonthTotalDays = new Date(year, month, 0).getDate();
 
   const todayStr = getLocalDateString();
 
-  // Fill in days of the previous month (visual trailing)
   for (let i = firstDayIndex - 1; i >= 0; i--) {
     const dayNum = prevMonthTotalDays - i;
     const cell = document.createElement('div');
@@ -495,7 +422,6 @@ function renderCalendar() {
     container.appendChild(cell);
   }
 
-  // Fill in active month days
   for (let day = 1; day <= totalDays; day++) {
     const cell = document.createElement('div');
     cell.classList.add('calendar-day-cell');
@@ -503,49 +429,39 @@ function renderCalendar() {
 
     const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
 
-    // Highlight: Current Today
     if (dateStr === todayStr) {
       cell.classList.add('current-today');
     }
 
-    // Highlight: Selected Active Day
     if (dateStr === state.selectedDate) {
       cell.classList.add('selected-active');
     }
 
-    // Checking if this date falls within a logged period cycle range
     const isPeriodDayLogged = state.dailyLogs[dateStr]?.isPeriodDay;
     const isInsideLoggedCycle = state.cycles.some(cycle => dateStr >= cycle.startDate && dateStr <= cycle.endDate);
 
     if (isPeriodDayLogged || isInsideLoggedCycle) {
       cell.classList.add('day-period');
     } else if (dateStr >= predictions.nextPeriodStart && dateStr <= predictions.nextPeriodEnd) {
-      // Highlight: Predicted Period
       cell.classList.add('day-pred-period');
     }
 
-    // Highlight: Predicted Ovulation (avoid overlaps on actual bleeding)
     if (dateStr === predictions.ovulationDate && !cell.classList.contains('day-period')) {
       cell.classList.add('day-ovulation');
     } else if (dateStr >= predictions.fertileStart && dateStr <= predictions.fertileEnd && !cell.classList.contains('day-period')) {
-      // Highlight: Fertile Window
       cell.classList.add('day-fertile');
     }
 
-    // Log indicator dot
     if (state.dailyLogs[dateStr]) {
       const dot = document.createElement('span');
       dot.classList.add('logged-dot-indicator');
       cell.appendChild(dot);
     }
 
-    // Interactive event listeners
     cell.addEventListener('click', () => {
-      // Deselect old
       const oldSelected = container.querySelector('.selected-active');
       if (oldSelected) oldSelected.classList.remove('selected-active');
       
-      // Select new
       cell.classList.add('selected-active');
       state.selectedDate = dateStr;
       
@@ -555,11 +471,9 @@ function renderCalendar() {
     container.appendChild(cell);
   }
 
-  // Fill details box
   renderSelectedDayDetails(state.selectedDate);
 }
 
-// Selected Day details panel inside Calendar Screen
 function renderSelectedDayDetails(dateStr) {
   const title = document.getElementById('selected-date-label');
   const content = document.getElementById('selected-day-content');
@@ -568,7 +482,6 @@ function renderSelectedDayDetails(dateStr) {
 
   const log = state.dailyLogs[dateStr];
   
-  // Check if date falls in a logged or predicted cycle as a period day
   const predictions = runPredictionEngine();
   const isPeriodLogged = log?.isPeriodDay || state.cycles.some(c => dateStr >= c.startDate && dateStr <= c.endDate);
   const isPeriodPredicted = dateStr >= predictions.nextPeriodStart && dateStr <= predictions.nextPeriodEnd;
@@ -580,7 +493,6 @@ function renderSelectedDayDetails(dateStr) {
 
   let html = '';
 
-  // Period / Flow block
   if (isPeriodLogged || log?.flow || isPeriodPredicted) {
     let flowLabel = log?.flow ? log.flow.charAt(0).toUpperCase() + log.flow.slice(1) : 'Medium';
     let flowClass = log?.flow || 'medium';
@@ -598,7 +510,6 @@ function renderSelectedDayDetails(dateStr) {
   }
 
   if (log) {
-    // Mood Block
     let moodEmoji = '😐';
     if (log.mood === 'happy') moodEmoji = '😊';
     else if (log.mood === 'normal') moodEmoji = '😐';
@@ -620,7 +531,6 @@ function renderSelectedDayDetails(dateStr) {
       </div>
     `;
 
-    // Symptoms Block
     if (log.symptoms && log.symptoms.length > 0) {
       const symList = log.symptoms.map(s => `<span class="summary-sym-chip">${s.charAt(0).toUpperCase() + s.slice(1)}</span>`).join('');
       html += `
@@ -631,7 +541,6 @@ function renderSelectedDayDetails(dateStr) {
       `;
     }
 
-    // Weight & Vitals Basal Temperature
     if (log.weight || log.temp) {
       html += `
         <div class="day-log-grid">
@@ -651,7 +560,6 @@ function renderSelectedDayDetails(dateStr) {
       `;
     }
 
-    // Notes
     if (log.notes) {
       html += `
         <div class="notes-summary-box">
@@ -665,7 +573,6 @@ function renderSelectedDayDetails(dateStr) {
   content.innerHTML = html || `<div class="empty-state-message">Predicted period window day. No individual logs recorded.</div>`;
 }
 
-// Render 3: HISTORY SCREEN
 function renderHistoryScreen() {
   const container = document.getElementById('cycle-history-list');
   container.innerHTML = '';
@@ -681,7 +588,6 @@ function renderHistoryScreen() {
     return;
   }
 
-  // Sort cycles descending by date to show most recent first
   const sortedCycles = [...state.cycles].sort((a, b) => b.startDate.localeCompare(a.startDate));
 
   sortedCycles.forEach((cycle, index) => {
@@ -690,16 +596,14 @@ function renderHistoryScreen() {
 
     const duration = dateDiffInDays(cycle.startDate, cycle.endDate) + 1;
     
-    // Find previous cycle to calculate cycle gap length
     let cycleLengthLabel = '--';
-    const nextChronologicalCycle = sortedCycles[sortedCycles.length - 1 - index + 1]; // chronological previous
+    const nextChronologicalCycle = sortedCycles[sortedCycles.length - 1 - index + 1];
     if (index < sortedCycles.length - 1) {
       const prevCycle = sortedCycles[index + 1];
       const gap = dateDiffInDays(prevCycle.startDate, cycle.startDate);
       cycleLengthLabel = `${gap} days`;
     }
 
-    // Aggregate statistics across daily logs within this range
     let aggregatePain = 0;
     let painCount = 0;
     let loggedSymptoms = new Set();
@@ -768,7 +672,6 @@ function renderHistoryScreen() {
       </div>
     `;
 
-    // Hook up delete listener
     card.querySelector('.btn-delete-cycle').addEventListener('click', (e) => {
       const cycleId = e.currentTarget.getAttribute('data-id');
       confirmDeleteCycle(cycleId);
@@ -782,7 +685,6 @@ function confirmDeleteCycle(cycleId) {
   if (confirm("Are you sure you want to delete this period cycle entry? This will also remove period flags from daily logs in this range.")) {
     const cycleToDelete = state.cycles.find(c => c.id === cycleId);
     if (cycleToDelete) {
-      // Clear period flow flag on daily logs in that date range
       let scanDate = cycleToDelete.startDate;
       const days = dateDiffInDays(cycleToDelete.startDate, cycleToDelete.endDate);
       for (let i = 0; i <= days; i++) {
@@ -799,16 +701,13 @@ function confirmDeleteCycle(cycleId) {
   }
 }
 
-// Render 4: STATISTICS SCREEN
 function renderStatisticsScreen() {
   const predictions = runPredictionEngine();
 
-  // Primary stats card updates
   document.getElementById('stat-avg-cycle').textContent = predictions.avgCycleLength;
   document.getElementById('stat-avg-period').textContent = predictions.avgPeriodLength;
   document.getElementById('stat-total-tracked').textContent = state.cycles.length;
 
-  // Compute longest/shortest cycle
   let longest = '--';
   let shortest = '--';
   if (state.cycles.length >= 2) {
@@ -828,24 +727,21 @@ function renderStatisticsScreen() {
   document.getElementById('stat-longest-cycle').textContent = longest;
   document.getElementById('stat-shortest-cycle').textContent = shortest;
 
-  // Calculate Streak of consecutive monthly tracked cycles
   let streak = 0;
   if (state.cycles.length > 0) {
     const sorted = [...state.cycles].sort((a, b) => b.startDate.localeCompare(a.startDate));
     streak = 1;
     for (let i = 0; i < sorted.length - 1; i++) {
       const gap = dateDiffInDays(sorted[i+1].startDate, sorted[i].startDate);
-      // If gap between consecutive start dates is <= 40 days, streak continues
       if (gap <= 40) {
         streak++;
       } else {
-        break; // streak broken
+        break;
       }
     }
   }
   document.getElementById('stat-current-streak').textContent = streak;
 
-  // 1. Generate Symptoms Frequency Chart
   const symContainer = document.getElementById('symptoms-chart-container');
   symContainer.innerHTML = '';
 
@@ -864,7 +760,6 @@ function renderStatisticsScreen() {
   const allSymptomsList = ['cramps', 'headache', 'acne', 'bloating', 'fatigue', 'nausea', 'backpain', 'breasttenderness', 'foodcravings', 'moodswings'];
   
   if (totalLogsWithSymptoms > 0) {
-    // Sort symptoms by frequency
     const sortedSymptoms = allSymptomsList.map(symName => {
       const count = symptomCounts[symName] || 0;
       const pct = Math.round((count / totalLogsWithSymptoms) * 100);
@@ -875,7 +770,6 @@ function renderStatisticsScreen() {
       const barRow = document.createElement('div');
       barRow.classList.add('chart-bar-row');
       
-      // Friendly formatted name
       let friendlyName = sym.name;
       if (sym.name === 'backpain') friendlyName = 'Back Pain';
       else if (sym.name === 'breasttenderness') friendlyName = 'Breast Tenderness';
@@ -898,16 +792,13 @@ function renderStatisticsScreen() {
     symContainer.innerHTML = `<div class="empty-state-message">Add symptoms in your daily logs to generate frequency tracking.</div>`;
   }
 
-  // 2. Basal Vitals & Pain Insights
   let lastWeight = '--';
   let lastTemp = '--';
   let sumPain = 0;
   let countPain = 0;
 
-  // Retrieve logs sorted chronologically
   const chronologicalLogs = Object.values(state.dailyLogs).sort((a,b) => a.date.localeCompare(b.date));
   
-  // Find last weight
   for (let i = chronologicalLogs.length - 1; i >= 0; i--) {
     if (chronologicalLogs[i].weight) {
       lastWeight = `${chronologicalLogs[i].weight} kg`;
@@ -915,7 +806,6 @@ function renderStatisticsScreen() {
     }
   }
 
-  // Find last temp
   for (let i = chronologicalLogs.length - 1; i >= 0; i--) {
     if (chronologicalLogs[i].temp) {
       lastTemp = `${chronologicalLogs[i].temp} °C`;
@@ -923,7 +813,6 @@ function renderStatisticsScreen() {
     }
   }
 
-  // Average Pain
   chronologicalLogs.forEach(log => {
     if (log.pain !== undefined) {
       sumPain += parseInt(log.pain, 10);
@@ -937,7 +826,6 @@ function renderStatisticsScreen() {
   document.getElementById('insight-avg-pain').textContent = `${avgPain} / 10`;
 }
 
-// Render 5: SETTINGS SCREEN
 function renderSettingsScreen() {
   document.getElementById('setting-cycle-length').value = state.defaults.cycleLength;
   document.getElementById('setting-period-length').value = state.defaults.periodLength;
@@ -953,20 +841,16 @@ function renderSettingsScreen() {
   }
 }
 
-// --- LOGGING MODAL FORM SERVICE ---
 function openQuickLogModal(targetDate = getLocalDateString()) {
   state.selectedDate = targetDate;
   state.selectedSymptomChips = [];
 
-  // Title update
   document.getElementById('log-modal-title').textContent = `Log Status: ${formatFriendlyDate(targetDate)}`;
   document.getElementById('log-date').value = targetDate;
 
-  // Clear Form fields
   const logForm = document.getElementById('log-form');
   logForm.reset();
 
-  // If previous log exists, hydrate form values
   const log = state.dailyLogs[targetDate];
   const flowSection = document.getElementById('flow-section-group');
 
@@ -986,14 +870,12 @@ function openQuickLogModal(targetDate = getLocalDateString()) {
     document.getElementById('log-pain').value = log.pain ?? 3;
     document.getElementById('pain-value-indicator').textContent = `${log.pain ?? 3} / 10`;
 
-    // Hydrate symptoms
     state.selectedSymptomChips = log.symptoms ? [...log.symptoms] : [];
 
     document.getElementById('log-weight').value = log.weight || '';
     document.getElementById('log-temp').value = log.temp || '';
     document.getElementById('log-notes').value = log.notes || '';
   } else {
-    // Default hydration
     document.getElementById('log-is-period').checked = false;
     document.getElementById('flow-medium').checked = true;
     document.getElementById('mood-happy').checked = true;
@@ -1004,7 +886,6 @@ function openQuickLogModal(targetDate = getLocalDateString()) {
     document.getElementById('log-notes').value = '';
   }
 
-  // Visual highlights on chips
   document.querySelectorAll('.symptom-toggle-chip').forEach(chip => {
     const symName = chip.getAttribute('data-symptom');
     if (state.selectedSymptomChips.includes(symName)) {
@@ -1014,10 +895,8 @@ function openQuickLogModal(targetDate = getLocalDateString()) {
     }
   });
 
-  // Adjust flow selector visibility dynamically based on 'isPeriod' checkbox
   toggleFlowVisibility(document.getElementById('log-is-period').checked);
 
-  // Show Modal Overlay
   document.getElementById('log-modal').classList.remove('hidden');
 }
 
@@ -1043,7 +922,6 @@ function saveDailyLogForm() {
   const tempVal = document.getElementById('log-temp').value;
   const notesVal = document.getElementById('log-notes').value;
 
-  // Build dailyLog entry
   state.dailyLogs[dateStr] = {
     date: dateStr,
     isPeriodDay: isPeriod,
@@ -1058,13 +936,10 @@ function saveDailyLogForm() {
 
   saveDataToStorage();
 
-  // Run dynamic background rebuilds of cycles from consecutive bleeding days
   rebuildCyclesFromDailyLogs();
 
-  // Hide Modal
   document.getElementById('log-modal').classList.add('hidden');
 
-  // Rerender active context screen
   if (state.activeTab === 'screen-home') {
     renderHomeScreen();
   } else if (state.activeTab === 'screen-calendar') {
@@ -1076,9 +951,7 @@ function saveDailyLogForm() {
   }
 }
 
-// --- EVENT ROUTING & BOOTSTRAPPING ---
 function initializeEventListeners() {
-  // 1. Tab Bar Navigation clicks
   document.querySelectorAll('.nav-tab').forEach(tab => {
     tab.addEventListener('click', () => {
       const targetScreen = tab.getAttribute('data-target');
@@ -1086,17 +959,14 @@ function initializeEventListeners() {
     });
   });
 
-  // 2. Header close reminder banner action
   document.getElementById('btn-close-banner').addEventListener('click', () => {
     document.getElementById('reminder-banner').classList.add('hidden');
   });
 
-  // 3. Home Screen CTA buttons
   document.getElementById('btn-open-quick-log').addEventListener('click', () => {
     openQuickLogModal(getLocalDateString());
   });
 
-  // 4. Calendar Screen Navigator arrows
   document.getElementById('btn-prev-month').addEventListener('click', () => {
     state.currentMonth--;
     if (state.currentMonth < 0) {
@@ -1115,12 +985,10 @@ function initializeEventListeners() {
     renderCalendar();
   });
 
-  // Edit selected calendar day button
   document.getElementById('btn-edit-selected-day').addEventListener('click', () => {
     openQuickLogModal(state.selectedDate);
   });
 
-  // 5. Past Cycle Modal triggers (History page)
   document.getElementById('btn-add-past-cycle').addEventListener('click', () => {
     document.getElementById('cycle-start-date').value = getLocalDateString();
     document.getElementById('cycle-end-date').value = getLocalDateString();
@@ -1134,7 +1002,6 @@ function initializeEventListeners() {
     document.getElementById('cycle-range-modal').classList.add('hidden');
   });
 
-  // Handle Past Range save
   document.getElementById('cycle-range-form').addEventListener('submit', (e) => {
     e.preventDefault();
     const start = document.getElementById('cycle-start-date').value;
@@ -1146,19 +1013,15 @@ function initializeEventListeners() {
       return;
     }
 
-    // Dual-Write Syncing: Add cycle & write dailyLogs
     writePeriodRangeToDailyLogs(start, end);
     saveDataToStorage();
 
-    // Rebuild coherent cycle bounds
     rebuildCyclesFromDailyLogs();
 
-    // Close and refresh
     document.getElementById('cycle-range-modal').classList.add('hidden');
     renderHistoryScreen();
   });
 
-  // 6. Settings Screen triggers
   document.getElementById('btn-save-defaults').addEventListener('click', () => {
     const cycleLen = document.getElementById('setting-cycle-length').value;
     const periodLen = document.getElementById('setting-period-length').value;
@@ -1179,7 +1042,6 @@ function initializeEventListeners() {
       testPanel.style.opacity = '1';
       testPanel.style.pointerEvents = 'auto';
 
-      // Request browser notification API permissions
       if ("Notification" in window) {
         Notification.requestPermission();
       }
@@ -1194,7 +1056,6 @@ function initializeEventListeners() {
     triggerSimulatedTestNotification();
   });
 
-  // Clear data safely
   document.getElementById('btn-clear-data').addEventListener('click', () => {
     if (confirm("⚠️ CRITICAL WARNING: This will permanently delete all your tracked cycles, daily logs, notes, and preferences. This action is irreversible. Proceed?")) {
       localStorage.clear();
@@ -1211,7 +1072,6 @@ function initializeEventListeners() {
     }
   });
 
-  // 7. Quick Log Modal inner interactivity handlers
   document.getElementById('btn-close-log-modal').addEventListener('click', () => {
     document.getElementById('log-modal').classList.add('hidden');
   });
@@ -1223,13 +1083,11 @@ function initializeEventListeners() {
     toggleFlowVisibility(e.target.checked);
   });
 
-  // Pain Level Slider indicator label update
   const painSlider = document.getElementById('log-pain');
   painSlider.addEventListener('input', (e) => {
     document.getElementById('pain-value-indicator').textContent = `${e.target.value} / 10`;
   });
 
-  // Symptoms grid chip selector toggles
   document.querySelectorAll('.symptom-toggle-chip').forEach(chip => {
     chip.addEventListener('click', () => {
       const symName = chip.getAttribute('data-symptom');
@@ -1243,18 +1101,15 @@ function initializeEventListeners() {
     });
   });
 
-  // Submit Logger Form handler
   document.getElementById('log-form').addEventListener('submit', (e) => {
     e.preventDefault();
     saveDailyLogForm();
   });
 }
 
-// --- APP INITIALIZER BOOT ---
 function appBoot() {
   loadDataFromStorage();
 
-  // Set default selection dates to today
   const todayStr = getLocalDateString();
   state.selectedDate = todayStr;
 
@@ -1264,9 +1119,7 @@ function appBoot() {
 
   initializeEventListeners();
 
-  // Render entry home screen
   switchTab('screen-home');
 }
 
-// Kick off
 window.addEventListener('DOMContentLoaded', appBoot);
